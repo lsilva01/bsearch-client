@@ -1,8 +1,9 @@
 <script setup>
+import TheSearch from '@/components/TheSearch.vue'
 </script>
 
 <template>
-  <router-view></router-view>
+     <TheSearch msg="Hello Vue 3 + Vite" />  
 </template>
 
 <style>

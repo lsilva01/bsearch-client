@@ -12,7 +12,7 @@ const search_disabled = ref(false)
 
 const result = ref([])
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL + "/api/v1/search?q=" // "https://bitcoin-dev-search.herokuapp.com/api/v1/search?q=";
+const SERVER_URL = import.meta.env.VITE_SERVER_URL + "/api/v1/search?q="
 
 console.log(SERVER_URL);
 
@@ -21,6 +21,8 @@ function doSearch() {
   result.value = [];
 
   if (query.value == "") return;
+
+  console.log(`${SERVER_URL}${query.value}`)
 
   axios.get(`${SERVER_URL}${query.value}`)
     .then(response => {
@@ -123,7 +125,7 @@ function handleText(search_term, text, truncate_limit) {
           <span v-html="item.body_content"></span>
         </p>
 
-        <div v-if="item.same_thread.length" class="group relative mt-1">
+        <!-- <div v-if="item.is_email_thread" class="group relative mt-1">
             <svg 
               class="absolute left-1 top-1/2 -mt-2.5 h-4 w-4 text-slate-400 pointer-events-none group-focus-within:text-blue-500" 
               fill="none" 
@@ -137,7 +139,7 @@ function handleText(search_term, text, truncate_limit) {
                 class="text-blue-700 hover:text-blue-900 visited:text-purple-900" 
                 href="#">Show email thread</a>
             </span>
-        </div>
+        </div> -->
         
         <br />
       </li>

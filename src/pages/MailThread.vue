@@ -2,7 +2,10 @@
 </script>
 
 <template>
-  <router-view></router-view>
+    <div>
+        <p>Mail Thread</p>
+    </div>
+  
 </template>
 
 <style>
