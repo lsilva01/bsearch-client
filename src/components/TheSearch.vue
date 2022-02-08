@@ -6,7 +6,7 @@ defineProps({
   msg: String
 })
 
-const query = ref("")
+const search_query = ref("")
 
 const search_disabled = ref(false)
 
@@ -14,25 +14,19 @@ const result = ref([])
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL + "/api/v1/search?q="
 
-console.log(SERVER_URL);
-
 function doSearch() {
   search_disabled.value = true;
   result.value = [];
 
-  if (query.value == "") return;
+  if (search_query.value == "") return;
 
-  console.log(`${SERVER_URL}${query.value}`)
-
-  axios.get(`${SERVER_URL}${query.value}`)
+  axios.get(`${SERVER_URL}${search_query.value}`)
     .then(response => {
       search_disabled.value = false;
 
       for (let item of response.data) {
-        item.title = handleText(query.value, item.title, 100)
-        item.body_content = handleText(query.value, item.body_content, 200)
-
-        console.log(item)
+        item.display_title = handleText(search_query.value, item.title, 100)
+        item.body_content = handleText(search_query.value, item.body_content, 200)
 
         result.value.push(item);
       }
@@ -42,7 +36,6 @@ function doSearch() {
       console.error(e)
     })
 }
-
 
 function handleText(search_term, text, truncate_limit) {
   //const term_position = text.search(`\\b${search_term}\\b`)
@@ -93,7 +86,7 @@ function handleText(search_term, text, truncate_limit) {
             </svg>
             <input 
               placeholder="Search"
-              v-model="query" 
+              v-model="search_query" 
               v-on:keydown.enter.prevent="doSearch"
               :disabled="search_disabled"
               class="focus:ring-2 w-full ml-3 mr-3 md:w-1/3 focus:ring-blue-500 focus:outline-none appearance-none text-sm leading-6 
@@ -112,20 +105,20 @@ function handleText(search_term, text, truncate_limit) {
     <ul id="result-1">
       <li v-for="item in result" :key="item.id">
         <p class="text-sm text-gray-600">
-          {{ item.domain.substr(0, 200) }}
+          {{ item.domain.substring(0, 200) }}
         </p>
         <p class="mt-1 text-base">
           <a 
             class="text-blue-700 hover:text-blue-900 visited:text-purple-900" 
             :href="item.url">
-            <span v-html="item.title"></span>
+            <span v-html="item.display_title"></span>
           </a>
         </p>
         <p class="mt-1 text-sm">
           <span v-html="item.body_content"></span>
         </p>
 
-        <!-- <div v-if="item.is_email_thread" class="group relative mt-1">
+        <div v-if="item.is_email_thread" class="group relative mt-1">
             <svg 
               class="absolute left-1 top-1/2 -mt-2.5 h-4 w-4 text-slate-400 pointer-events-none group-focus-within:text-blue-500" 
               fill="none" 
@@ -135,11 +128,16 @@ function handleText(search_term, text, truncate_limit) {
                 stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76" />
             </svg>
             <span class="ml-6 text-sm " >
-              <a 
+              <!-- <a 
                 class="text-blue-700 hover:text-blue-900 visited:text-purple-900" 
-                href="#">Show email thread</a>
+                href="#">Show email thread</a> -->
+              <router-link
+                :to="{name: 'MailThread', query: { subject: item.title, q: search_query }}"
+                class="text-blue-700 hover:text-blue-900 visited:text-purple-900" >
+                Show email thread
+              </router-link>
             </span>
-        </div> -->
+        </div>
         
         <br />
       </li>
