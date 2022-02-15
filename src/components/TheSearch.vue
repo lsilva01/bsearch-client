@@ -12,23 +12,35 @@ const search_disabled = ref(false)
 
 const result = ref([])
 
+const stack_overflow_items = ref([])
+
 const SERVER_URL = import.meta.env.VITE_SERVER_URL + "/api/v1/search?q="
 
 function doSearch() {
   search_disabled.value = true;
   result.value = [];
+  stack_overflow_items.value = [];
 
-  if (search_query.value == "") return;
+  if (search_query.value.trim() == "") return;
 
   axios.get(`${SERVER_URL}${search_query.value}`)
     .then(response => {
       search_disabled.value = false;
 
-      for (let item of response.data) {
+      console.log(response.data);
+
+      for (let item of response.data.crawler_items) {
         item.display_title = handleText(search_query.value, item.title, 100)
         item.body_content = handleText(search_query.value, item.body_content, 200)
 
         result.value.push(item);
+      }
+
+      for (let item of response.data.stack_overflow_items) {
+        item.display_title = handleText(search_query.value, item.title, 100)
+        item.body_content = handleText(search_query.value, item.body_content, 200)
+
+        stack_overflow_items.value.push(item);
       }
     })
     .catch(e => {
@@ -139,6 +151,23 @@ function handleText(search_term, text, truncate_limit) {
             </span>
         </div>
         
+        <br />
+      </li>
+      
+      <li v-for="item in stack_overflow_items" :key="item.id">
+        <p class="text-sm text-gray-600">
+          {{ item.domain }}
+        </p>
+        <p class="mt-1 text-base">
+          <a 
+            class="text-blue-700 hover:text-blue-900 visited:text-purple-900" 
+            :href="item.url">
+            <span v-html="item.display_title"></span>
+          </a>
+        </p>
+        <p class="mt-1 text-sm">
+          <span v-html="item.body_content"></span>
+        </p>
         <br />
       </li>
     </ul>
